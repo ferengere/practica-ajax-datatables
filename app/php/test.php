@@ -6,9 +6,8 @@
 <input type="text" name="inputUsuario">
 <input type="submit" value="Enviar">
 </form>
-<form action="validar_nif_db.php" method="post">
-<label for="inputCifNif">Escribe el cif/nif</label>	
-<input type="text" name="inputCifNif">
+<form action="cargar_clinicas.php" method="post">
+<label>Listar clínicas</label>
 <input type="submit" value="Enviar">
 </form>
 <form action="validar_iban_db.php" method="post">

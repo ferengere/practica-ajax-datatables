@@ -5,6 +5,8 @@
     "bootstrap": "~3.2.0",
     "datatables": "~1.10.6",
     "datatables-plugins": "~1.10.6",
-    "handlebars": "~3.0.2"
+    "handlebars": "~3.0.2",
+    "bootstrap-growl": "~1.1.0",
+    "jquery-validate": "~1.13.1"
   }
 }
