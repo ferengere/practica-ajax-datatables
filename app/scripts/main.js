@@ -149,10 +149,12 @@ $(document).ready(
             },
 
             'columns': [{
-                'data': 'nombreDoctor',
+                'data': {
+                    id: 'idDoctor',
+                    nombre: 'nombreDoctor'
+                },
                 'render': function(data) {
-                    //return '<a>' + data + '</a>';
-                    return data;
+                    return '<a id="' + data.idDoctor + '" class="btnEditar">' + data.nombreDoctor + '</a>';
                 }
             }, {
                 'data': 'numColegiado'
@@ -242,45 +244,9 @@ $(document).ready(
             control._editarDoctor = true;
             control.initForm($(this));
         });
-        /*$('#tablaDoctores').on('click', '.btnEditar', function(e) {
-            var evt = e || window.event;
-            evt.preventDefault();
-            console.log('Boton Editar pulsado');
-
-            var nRow = $(this).parents('tr')[0];
-            var aData = tablaDoctores.row(nRow).data();
-            //console.log(aData);
-            $('#nombre').val(aData.nombre_doctor);
-            $('#numero').val(aData.num_colegiado);
-
-            var promise = getClinicas();
-            promise.success(function(data) {
-                formatSelect(aData.clinicas, JSON.parse(data));
-            });
-
-            $('#modalDoctor').modal('show');
-            validarFormulario();
-        });*/
-
-
 
         /*$('#tablaDoctores').on('click', 'a', function(e) {
-            var evt = e || window.event;
-            evt.preventDefault();
-            console.log('Link Doctor pulsado');
-
-            var nRow = $(this).parents('tr')[0];
-            var aData = tablaDoctores.row(nRow).data();
-            //console.log(aData);
-            $('#nombre').val(aData.nombre_doctor);
-            $('#numero').val(aData.num_colegiado);
-
-            var promise = getClinicas();
-            promise.success(function(data) {
-                formatSelect(aData.clinicas, JSON.parse(data));
-            });
-
-            $('#modalDoctor').modal('show');
+            
         });*/
 
         //evento pulsar boton borrar
