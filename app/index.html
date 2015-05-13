@@ -25,19 +25,12 @@
     <![endif]-->
     <div class="container-fluid">
         <div class="header">
-            <!-- ul class="nav nav-pills pull-left">
-                <li class="active"><a href="#">Home</a>
-                </li>
-                <li><a href="#">About</a>
-                </li>
-                <li><a href="#">Contact</a>
-                </li>
-            </ul -->
             <h3 class="text-muted">practica ajax datatables</h3>
             <a href="https://github.com/ferengere/practica-ajax-datatables" target="_blank">Ver en GitHub</a>
         </div>
         <br>
-        <button class="btn btn-primary btnNuevo">Nuevo Doctor</button>
+        <button class="btn btn-primary btnNuevo" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Nuevo Doctor</button>
+        <button id="boton-crear-doctor" data-target="#modal-editar" class="btn btn-success" data-toggle="modal" data-backdrop="static">Nuevo Doctor j</button>
         <br>
         <br>
         <div id="tabla" class="row">
@@ -62,74 +55,112 @@
                 </table>
             </div>
         </div>
-        <div class="modal fade" id="modalDoctor" tabindex="-1" role="dialog" aria-labelledby="modalDoctorLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <form id="formDoctor" name="formDoctor" class="form" role="form" action="#" method="post">
-                    <div class="modal-content row">
-                        <div class="modal-header col-md-12">
-                            <h2 class="modal-title">Datos del doctor</h2>
-                        </div>
-                        <div class="modal-body col-md-12">
-                            <div class="form-group">
-                                <label for="nombre" class="col-md-3 control-label">
-                                    Nombre:</label>
-                                <div class="col-md-9">
-                                    <input class="form-control" id="nombre" name="nombre" type="text">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="numero" class="col-md-3 control-label ">
-                                    Nº de Colegiado:</label>
-                                <div class="col-md-9">
-                                    <input class="form-control" id="numero" name="numero" type="text">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="selClinicas" class="col-md-3 control-label ">
-                                    Clínicas:</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control" id="selClinicas" name="selClinicas[]" multiple>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer col-md-11">
-                            <div class="form-group">
-                                <button id="btnCancelarEditar" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                <input id="btnConfirmarEditar" data-toggle="modal" type="button" value="Guardar" class="btn btn-primary" />
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
+        <!-- formulario prueba -->
+        <!-- formulario prueba -->
+        <div class="footer">
+            <p><span class="glyphicon glyphicon-heart "></span> from the Yeoman team</p>
         </div>
-        <div class="modal fade" id="modalBorrar" tabindex="-1" role="dialog" aria-labelledby="modalBorrarLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content row">
-                    <div class="modal-header col-md-12">
-                        <h2>Borrar Doctor</h2>
+    </div>
+    <div class="modal fade" id="modalDoctor">
+        <div class="modal-dialog">
+            <form id="formDoctor" class="form-horizontal" novalidate>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Datos del doctor</h2>
                     </div>
-                    <div class="modal-body col-sm-12">
-                    </div>
-                    <div class="modal-footer col-sm-12">
+                    <div class="modal-body">
                         <div class="form-group">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                            <button id="btnConfirmarBorrar" type="button" class="btn btn-primary">Borrar</button>
+                            <label for="nombre" class="col-md-3 control-label">
+                                Nombre:</label>
+                            <div class="col-md-9">
+                                <input class="form-control" id="nombre" name="nombre" type="text">
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <label for="numero" class="col-md-3 control-label">
+                                Nº de Colegiado:</label>
+                            <div class="col-md-9">
+                                <input class="form-control" id="numero" name="numero" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="selClinicas" class="col-md-3 control-label">
+                                Clínicas:</label>
+                            <div class="col-md-9">
+                                <select class="form-control" id="selClinicas" name="selClinicas[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnCancelarEditar" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <input type="submit" id="btnConfirmarEditar" data-toggle="modal" value="Guardar" class="btn btn-primary" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-editar" class="modal fade">
+        <div class="modal-dialog">
+            <form class="form-horizontal" novalidate id="editarDoctor">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Datos del Doctor</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombreEditar" class="col-sm-4 control-label">Nombre:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="nombreEditar" id="nombreEditar">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="numeroColegiadoEditar" class="col-sm-4 control-label">Nº de Colegiado:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="numeroColegiadoEditar" id="numeroColegiadoEditar">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="clinicasEditar" class="col-sm-4 control-label">Clinicas:</label>
+                            <div class="col-sm-8">
+                                <select name="seleccionaClinicasEditar[]" id="seleccionaClinicasEditar" multiple class="form-control ">
+                                </select>
+                            </div>
+                        </div>
+                        <input type="hidden" class="form-control" name="idDoctorEditar" id="idDoctorEditar">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="botonCancelarEditarDoctor" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <input type="submit" id="botonGuardarEditarDoctor" value="Guardar" data-toggle="modal" class="btn btn-primary" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--div class="modal fade" id="modalBorrar" tabindex="-1" role="dialog" aria-labelledby="modalBorrarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content row">
+                <div class="modal-header col-md-12">
+                    <h2>Borrar Doctor</h2>
+                </div>
+                <div class="modal-body col-sm-12">
+                </div>
+                <div class="modal-footer col-sm-12">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button id="btnConfirmarBorrar" type="button" class="btn btn-primary">Borrar</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="footer ">
-        <p><span class="glyphicon glyphicon-heart "></span> from the Yeoman team</p>
-    </div>
-    </div>
+    </div-->
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/datatables/media/js/jquery.dataTables.js"></script>
     <script src="bower_components/jquery-validate/dist/jquery.validate.js"></script>
+    <script src="bower_components/jquery-validate/dist/additional-methods.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:js(.) scripts/plugins.js -->
