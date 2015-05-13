@@ -87,48 +87,11 @@ var control = {
     }
 };
 
-/*BORRAR
-var formatList = function(data) {
-    //poner nombres de clínicas en forma de lista
-    var lista = data.split(',');
-    var $ul = $('<ul>');
 
-    lista.forEach(function(item) {
-        var $li = $('<li>').text(item);
-        $li.appendTo($ul);
-    });
-    return $ul.html();
-};*/
 
-/*var formatSelect = function(cliDoc, cliAll) {
-    //crear el select con todas las clinicas, seleccionando las del doctor
-    var selected = cliDoc.split(',');
-    var size = cliAll.recordsTotal;
 
-    //usar el select del formulario para añadirle los elementos
-    var $sel = $('#clinicas');
-    $sel.attr('size', size);
 
-    var cli = cliAll.data;
 
-    //crear opciones del select
-    cli.forEach(function(item) {
-        //console.log(item.nombre);
-        var $op = $('<option />').text(item.nombre);
-        var existe = $.inArray(item.nombre, selected);
-        //console.log(existe);
-        if (existe !== -1) {
-            $op.attr('selected', 'selected');
-        }
-        $op.appendTo($sel);
-    });
-};*/
-
-/*var getClinicas = function() {
-    return $.ajax({
-        url: 'php/cargar_clinicas.php'
-    });
-};*/
 
 var borrarDoctor = function(id) {
     return $.ajax({
@@ -185,36 +148,30 @@ $(document).ready(
                 }
             },
 
-            'columns': [
-                /*{'data': 'id_doctor'},*/
-                {
-                    'data': 'nombreDoctor',
-                    'render': function(data) {
-                        //return '<a>' + data + '</a>';
-                        return data;
-                    }
-                }, {
-                    'data': 'numColegiado'
-                }, {
-                    'data': 'clinicas',
-                    'render': function(data) {
-                        //return formatList(data);
-                        return control.formatList(data);
-                    }
-                }, {
-                    'data': 'idDoctor',
-                    'render': function(data) {
-                        //return '<button class="btn btn-primary btnEditar" >Editar</a>';
-                        return '<button id="' + data + '" class="btn btn-primary btnEditar" >Editar</button>';
-                    }
-                }, {
-                    'data': 'idDoctor',
-                    'render': function(data) {
-                        //return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</a>';
-                        return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</button>';
-                    }
+            'columns': [{
+                'data': 'nombreDoctor',
+                'render': function(data) {
+                    //return '<a>' + data + '</a>';
+                    return data;
                 }
-            ],
+            }, {
+                'data': 'numColegiado'
+            }, {
+                'data': 'clinicas',
+                'render': function(data) {
+                    return control.formatList(data);
+                }
+            }, {
+                'data': 'idDoctor',
+                'render': function(data) {
+                    return '<button id="' + data + '" class="btn btn-primary btnEditar" >Editar</button>';
+                }
+            }, {
+                'data': 'idDoctor',
+                'render': function(data) {
+                    return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</button>';
+                }
+            }],
             'columnDefs': [{
                 'targets': [3],
                 'searchable': false,
@@ -267,7 +224,14 @@ $(document).ready(
                         }*/
         });
 
-
+        //evento pulsar boton nuevo
+        $('.btnNuevo').on('click', function(e) {
+            var evt = e || window.event;
+            evt.preventDefault();
+            console.log('Boton Crear Doctor pulsado');
+            control._editarDoctor = false;
+            control.initForm($(this));
+        });
 
 
         //evento pulsar boton editar
