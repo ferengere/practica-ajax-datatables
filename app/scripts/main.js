@@ -1,6 +1,93 @@
 //main.js
 'use strict';
 
+var control = {
+    _tablaDoctores: null,
+    _validarDoctor: null,
+    _formDoctor: $('#formDoctor'),
+    _modalDoctor: $('#modalDoctor'),
+    _modalBorrar: $('#modalBorrar'),
+    _idDoctor: null,
+    _editarDoctor: false, //false nuevo, true editar
+    formatList: function(data) {
+        //poner nombres de clínicas en forma de lista en el campo de la tabla
+        var lista = data.split(',');
+        var $ul = $('<ul>');
+
+        lista.forEach(function(item) {
+            var $li = $('<li>').text(item);
+            $li.appendTo($ul);
+        });
+        return $ul.html();
+    },
+    initForm: function($elem) {
+        var self = this;
+        //inicializar y mostrar foumulario
+        var clinicasDoctor = null;
+        if (this._editarDoctor === true) {
+            this._idDoctor = $elem.attr('id');
+            console.log('Editar doctor: ' + control._idDoctor);
+            var nRow = $elem.parents('tr')[0];
+            var aData = this._tablaDoctores.row(nRow).data();
+            //console.log(aData);
+            clinicasDoctor = aData.clinicas.split(',');
+            $('#nombre').val(aData.nombreDoctor);
+            $('#numero').val(aData.numColegiado);
+
+
+        } else {
+            this._idDoctor = null;
+            $('#nombre').val('');
+            $('#numero').val('');
+            console.log('Añadir doctor');
+        }
+
+        var promise = control.getClinicas(); //****PONER THIS
+        promise.success(function(data) {
+            self.formatSelect(clinicasDoctor, JSON.parse(data));
+        });
+
+        $('#modalDoctor').modal('show');
+    },
+    formatSelect: function(cliDoc, cliAll) {
+        //crear el select con todas las clinicas, seleccionando las del doctor
+
+        //var selected = cliDoc.split(',');
+        var size = cliAll.recordsTotal;
+
+        //usar el select del formulario para añadirle los elementos
+        var $sel = $('#selClinicas');
+        $sel.find('option').remove();
+        $sel.attr('size', size);
+
+        var cli = cliAll.data;
+
+        //crear opciones del select
+        cli.forEach(function(item) {
+            //console.log(item.nombre);
+            var $op = $('<option>').text(item.nombre);
+            $op.attr('id', item.idClinica);
+            $op.attr('value', item.idClinica);
+            if (cliDoc) {
+                var existe = $.inArray(item.nombre, cliDoc);
+                //console.log(existe);
+                if (existe !== -1) {
+                    $op.attr('selected', 'selected');
+                }
+            }
+            $op.appendTo($sel);
+        });
+        //var clinicas = $('#selClinicas').html();
+        //console.log(clinicas);
+    },
+    getClinicas: function() {
+        return $.ajax({
+            url: 'php/cargar_clinicas.php'
+        });
+    }
+};
+
+/*BORRAR
 var formatList = function(data) {
     //poner nombres de clínicas en forma de lista
     var lista = data.split(',');
@@ -11,9 +98,9 @@ var formatList = function(data) {
         $li.appendTo($ul);
     });
     return $ul.html();
-};
+};*/
 
-var formatSelect = function(cliDoc, cliAll) {
+/*var formatSelect = function(cliDoc, cliAll) {
     //crear el select con todas las clinicas, seleccionando las del doctor
     var selected = cliDoc.split(',');
     var size = cliAll.recordsTotal;
@@ -35,13 +122,13 @@ var formatSelect = function(cliDoc, cliAll) {
         }
         $op.appendTo($sel);
     });
-};
+};*/
 
-var getClinicas = function() {
+/*var getClinicas = function() {
     return $.ajax({
         url: 'php/cargar_clinicas.php'
     });
-};
+};*/
 
 var borrarDoctor = function(id) {
     return $.ajax({
@@ -67,10 +154,12 @@ $(document).ready(
     function() {
         console.log('DOCUMENT.READY');
 
-        var tablaDoctores = $('#tablaDoctores').DataTable({
+        control._tablaDoctores = $('#tablaDoctores').DataTable({
             'processing': true,
             'serverSide': true,
+            'stateSave': true,
             'ajax': 'php/cargar_vdoctores.php',
+            /*'async': false,*/
             'language': {
                 'sProcessing': 'Procesando...',
                 'sLengthMenu': 'Mostrar _MENU_ registros',
@@ -99,36 +188,50 @@ $(document).ready(
             'columns': [
                 /*{'data': 'id_doctor'},*/
                 {
-                    'data': 'nombre_doctor',
+                    'data': 'nombreDoctor',
                     'render': function(data) {
-                        return '<a>' + data + '</a>';
+                        //return '<a>' + data + '</a>';
+                        return data;
                     }
                 }, {
-                    'data': 'num_colegiado'
+                    'data': 'numColegiado'
                 }, {
                     'data': 'clinicas',
                     'render': function(data) {
-                        return formatList(data);
+                        //return formatList(data);
+                        return control.formatList(data);
                     }
                 }, {
-                    'data': 'id_doctor',
+                    'data': 'idDoctor',
                     'render': function(data) {
-                        return '<button class="btn btn-primary btnEditar" >Editar</a>';
+                        //return '<button class="btn btn-primary btnEditar" >Editar</a>';
+                        return '<button id="' + data + '" class="btn btn-primary btnEditar" >Editar</button>';
                     }
                 }, {
-                    'data': 'id_doctor',
+                    'data': 'idDoctor',
                     'render': function(data) {
-                        return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</a>';
+                        //return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</a>';
+                        return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</button>';
                     }
                 }
-            ]
+            ],
+            'columnDefs': [{
+                'targets': [3],
+                'searchable': false,
+                'orderable': false
+            }, {
+                'targets': [4],
+                'searchable': false,
+                'orderable': false
+            }]
         });
 
-        $('#formDoctor').validate({
+        control._validarDoctor = $('#formDoctor').validate({
             rules: {
                 nombre: {
-                    required: true,
-                    lettersonly: true
+                    required: true
+                        /*,
+                                            lettersonly: true*/
                 },
                 numero: {
                     digits: function() {
@@ -137,18 +240,19 @@ $(document).ready(
                         }
                     }
                 },
-                clinicas: {
-                    /*required: function() {
-                        if ($('#formDoctor #clinicas') !== '') {
+                'selClinicas[]': {
+                    required: function() {
+                        if ($('#selClinicas option:selected').length === 0) {
                             return true;
                         }
-                    }*/
+                    }
                 }
             },
             messages: {
                 nombre: {
-                    required: 'Debe escribir el nombre',
-                    lettersonly: 'Debe escribir sólo letras'
+                    required: 'Debe escribir el nombre'
+                        /*,
+                                            lettersonly: 'Debe escribir sólo letras'*/
                 },
                 numero: {
                     digits: 'Debe escribir sólo números'
@@ -156,10 +260,11 @@ $(document).ready(
                 clinicas: {
                     required: 'Debe seleccionar al menos una clínica'
                 }
-            },
-            submitHandler: function() {
-
             }
+            /*,
+                        submitHandler: function() {
+
+                        }*/
         });
 
 
@@ -167,6 +272,13 @@ $(document).ready(
 
         //evento pulsar boton editar
         $('#tablaDoctores').on('click', '.btnEditar', function(e) {
+            var evt = e || window.event;
+            evt.preventDefault();
+            console.log('Boton Editar pulsado');
+            control._editarDoctor = true;
+            control.initForm($(this));
+        });
+        /*$('#tablaDoctores').on('click', '.btnEditar', function(e) {
             var evt = e || window.event;
             evt.preventDefault();
             console.log('Boton Editar pulsado');
@@ -184,9 +296,11 @@ $(document).ready(
 
             $('#modalDoctor').modal('show');
             validarFormulario();
-        });
+        });*/
 
-        $('#tablaDoctores').on('click', 'a', function(e) {
+
+
+        /*$('#tablaDoctores').on('click', 'a', function(e) {
             var evt = e || window.event;
             evt.preventDefault();
             console.log('Link Doctor pulsado');
@@ -203,7 +317,7 @@ $(document).ready(
             });
 
             $('#modalDoctor').modal('show');
-        });
+        });*/
 
         //evento pulsar boton borrar
         $('#tablaDoctores').on('click', '.btnBorrar', function(e) {

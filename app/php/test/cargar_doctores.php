@@ -5,18 +5,19 @@ require_once('connData.php');
 
  
 // DB table to use
-$table = 'clinicas';
+$table = 'doctores';
  
 // Table's primary key
-$primaryKey = 'id_clinica';
+$primaryKey = 'id_doctor';
  
 // Array of database columns which should be read and sent back to DataTables.
 // The `db` parameter represents the column name in the database, while the `dt`
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
 $columns = array(
-    array( 'db' => 'id_clinica', 'dt' => 'idClinica' ),
-    array( 'db' => 'nombre', 'dt' => 'nombre' )
+    array( 'db' => 'id_doctor', 'dt' => 'id_doctor' ),
+    array( 'db' => 'nombre', 'dt' => 'nombre_doctor' ),
+    array( 'db' => 'numcolegiado',  'dt' => 'num_colegiado' )
 );
  
  
@@ -28,5 +29,5 @@ $columns = array(
 require( 'ssp.class.php' );
  
 echo json_encode(
-    SSP::simple( $_GET, $gaSql, $table, $primaryKey, $columns )
+    SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns )
 );

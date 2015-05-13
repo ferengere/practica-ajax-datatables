@@ -15,9 +15,9 @@ $primaryKey = 'id_doctor';
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
 $columns = array(
-    array( 'db' => 'id_doctor', 'dt' => 'id_doctor' ),
-    array( 'db' => 'nombre', 'dt' => 'nombre_doctor' ),
-    array( 'db' => 'numcolegiado',  'dt' => 'num_colegiado' ),
+    array( 'db' => 'id_doctor', 'dt' => 'idDoctor' ),
+    array( 'db' => 'nombre', 'dt' => 'nombreDoctor' ),
+    array( 'db' => 'numcolegiado',  'dt' => 'numColegiado' ),
     array( 'db' => 'clinicas', 'dt' => 'clinicas' )
 );
  

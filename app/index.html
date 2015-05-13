@@ -25,77 +25,82 @@
     <![endif]-->
     <div class="container-fluid">
         <div class="header">
-            <ul class="nav nav-pills pull-left">
+            <!-- ul class="nav nav-pills pull-left">
                 <li class="active"><a href="#">Home</a>
                 </li>
                 <li><a href="#">About</a>
                 </li>
                 <li><a href="#">Contact</a>
                 </li>
-            </ul>
+            </ul -->
             <h3 class="text-muted">practica ajax datatables</h3>
+            <a href="https://github.com/ferengere/practica-ajax-datatables" target="_blank">Ver en GitHub</a>
         </div>
-        <div id="test"></div>
+        <br>
+        <button class="btn btn-primary btnNuevo">Nuevo Doctor</button>
+        <br>
+        <br>
         <div id="tabla" class="row">
-            <div class="col-md-10  col-md-offset-1">
+            <div class="col-md-12">
                 <table id="tablaDoctores" class="table-hover col-md-12">
                     <thead>
                         <th class="col-md-4">Doctor</th>
-                        <th class="col-md-1">Nº Colegiado</th>
-                        <th id="cli" class="col-md-5">Clinicas</th>
+                        <th class="col-md-2">Nº Colegiado</th>
+                        <th id="cli" class="col-md-4">Clinicas</th>
                         <th class="col-md-1">Editar</th>
                         <th class="col-md-1">Eliminar</th>
                     </thead>
                     <tbody>
                     </tbody>
+                    <tfoot>
+                        <th class="col-md-4">Doctor</th>
+                        <th class="col-md-2">Nº Colegiado</th>
+                        <th id="cli" class="col-md-4">Clinicas</th>
+                        <th class="col-md-1">Editar</th>
+                        <th class="col-md-1">Eliminar</th>
+                    </tfoot>
                 </table>
             </div>
         </div>
         <div class="modal fade" id="modalDoctor" tabindex="-1" role="dialog" aria-labelledby="modalDoctorLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content row">
-                    <div class="modal-header col-md-12">
-                        <h2>Datos del doctor</h2>
-                    </div>
-                    <form id="formDoctor" name="formDoctor" class="form" role="form" action="#" method="post">
-                        <div class="modal-body col-sm-12">
-                            <div class=" col-sm-10 col-sm-offset-1">
-                                <div class="form-group ">
-                                    <label for="nombre" class="col-sm-4 control-label">
-                                        Nombre:</label>
-                                    <div class="col-sm-8">
-                                        <input class="form-control" id="nombre" placeholder="_nombre_" type="text">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="numero" class="col-sm-4 control-label ">
-                                        Nº de Colegiado:</label>
-                                    <div class="col-sm-8">
-                                        <input class="form-control" id="numero" placeholder="" type="text">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="clinicas" class="col-sm-4 control-label ">
-                                        Clínicas:</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control" id="clinicas" multiple>
-                                            <!--option>item 1</option>
-                                            <option>item 2</option>
-                                            <option>item 3</option-->
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--form-->
+                <form id="formDoctor" name="formDoctor" class="form" role="form" action="#" method="post">
+                    <div class="modal-content row">
+                        <div class="modal-header col-md-12">
+                            <h2 class="modal-title">Datos del doctor</h2>
                         </div>
-                        <div class="modal-footer col-sm-12">
+                        <div class="modal-body col-md-12">
                             <div class="form-group">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                <input id="btnConfirmarEditar" name="btnConfirmarEditar" type="submit" value="Guardar" class="btn btn-primary" />
+                                <label for="nombre" class="col-md-3 control-label">
+                                    Nombre:</label>
+                                <div class="col-md-9">
+                                    <input class="form-control" id="nombre" name="nombre" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="numero" class="col-md-3 control-label ">
+                                    Nº de Colegiado:</label>
+                                <div class="col-md-9">
+                                    <input class="form-control" id="numero" name="numero" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="selClinicas" class="col-md-3 control-label ">
+                                    Clínicas:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" id="selClinicas" name="selClinicas[]" multiple>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </form>
-                </div>
+                        <div class="modal-footer col-md-11">
+                            <div class="form-group">
+                                <button id="btnCancelarEditar" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <input id="btnConfirmarEditar" data-toggle="modal" type="button" value="Guardar" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
         <div class="modal fade" id="modalBorrar" tabindex="-1" role="dialog" aria-labelledby="modalBorrarLabel" aria-hidden="true">
@@ -124,7 +129,6 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/datatables/media/js/jquery.dataTables.js"></script>
-    <script src="bower_components/handlebars/handlebars.js"></script>
     <script src="bower_components/jquery-validate/dist/jquery.validate.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
