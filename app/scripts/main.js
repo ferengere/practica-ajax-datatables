@@ -181,7 +181,8 @@ $(document).ready(
                     nombre: 'nombreDoctor'
                 },
                 'render': function(data) {
-                    return '<a id="' + data.idDoctor + '" class="btnEditar">' + data.nombreDoctor + '</a>';
+                    return '<a id="' + data.idDoctor + '" class="btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">' + data.nombreDoctor + '</a>';
+                    //<button class="btn btn-primary btnNuevo" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Nuevo Doctor</button>
                 }
             }, {
                 'data': 'numColegiado'
@@ -193,7 +194,7 @@ $(document).ready(
             }, {
                 'data': 'idDoctor',
                 'render': function(data) {
-                    return '<button id="' + data + '" class="btn btn-primary btnEditar" >Editar</button>';
+                    return '<button id="' + data + '" class="btn btn-primary btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Editar</button>';
                 }
             }, {
                 'data': 'idDoctor',
@@ -246,7 +247,7 @@ $(document).ready(
                 }
             },
             submitHandler: function(form) {
-                console.log('VALIDAR FORMDOCTOR');
+                console.log('FORMDOCTOR validado');
             }
 
         });
@@ -350,7 +351,7 @@ $(document).ready(
             //evt.preventDefault();
             console.log('Boton Crear pulsado');
             control._editarDoctor = false;
-            control.mensajeGrowl('Añadir nuevo doctor', 'info');
+            control.mensajeGrowl('Nuevo doctor', 'info');
             control.initForm($(this));
         });
 
@@ -358,7 +359,7 @@ $(document).ready(
         //evento pulsar boton editar
         $('#tablaDoctores').on('click', '.btnEditar', function(e) {
             var evt = e || window.event;
-            evt.preventDefault();
+            //evt.preventDefault();
             console.log('Boton Editar pulsado');
             control._editarDoctor = true;
             control.mensajeGrowl('Editar doctor', 'info');
