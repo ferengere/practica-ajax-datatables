@@ -12,7 +12,7 @@
 </form>
 <form action="../registro_doctor.php" method="post">
 <label for="editar">Editar</label>	
-<input type="text" name="editar" value="true">
+<input type="checkbox" name="editar" value="true">
 <br/>
 <label for="id">Id</label>	
 <input type="text" name="id" value="10">

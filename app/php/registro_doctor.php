@@ -1,5 +1,4 @@
 <?php
-print_r($_POST);
 
 /* Database connection information */
 include("connData.php");
@@ -25,91 +24,95 @@ if (!mysql_select_db($gaSql['db'], $gaSql['link'])) {
 mysql_query('SET names utf8');
 
 $editar = $_POST['editar'];
+if (!empty($_POST['id'])){
 $id=$_POST['id'];
+} else {
+    $id="";
+}
 $nombre = $_POST['nombre'];
+if (!empty($_POST['numero'])){
 $numero=$_POST['numero'];
-$clinicas=$_POST['clinicas'];
+} else {
+    $numero="";
+}
+$clinicas = $_POST['clinicas'];
+
+/*echo "<br>";
+echo "id: ".$id;
+echo "<br>";
+echo "numero: ".$numero;*/
+//return 0;
 
 if ($editar == 'true'){
 //editar doctor
     //echo 'editar';
-    $query = "UPDATE doctores SET nombre = upper('" . $nombre . "'), numcolegiado = '" . $numero . "'  WHERE id_doctor = '" . $id . "' ";
-    $res = mysql_query($query);
-        
+    $query1 = "UPDATE doctores SET nombre = upper('" . $nombre . "'), numcolegiado = '" . $numero . "'  WHERE id_doctor = '" . $id . "'";
+    //echo "<br>";
+    //echo $query1;
+//return 0;
+    $res1 = mysql_query($query1);
         // Comprobar el resultado
-        if (!res) {
-            echo 'error';
+        if (!$res1) {
             $mensaje = 'Error en la operación';
             $estado = mysql_errno();
         } else {
-
             $mensaje = "Operación correcta";
             $estado  = 0;
         }
 
-        $query = "DELETE FROM clinica_doctor WHERE id_doctor = ".$id;
-        echo $query;
-        $res = mysql_query($query);
+        $query2 = "DELETE FROM clinica_doctor WHERE id_doctor = ".$id;
+        $res2 = mysql_query($query2);
         
         // Comprobar el resultado
-        if (!res) {
-            echo 'error';
+        if (!$res2) {
             $mensaje = 'Error en la operación';
             $estado = mysql_errno();
         } else {
-
             $mensaje = "Operación correcta";
             $estado  = 0;
         }
 }else{
 //doctor nuevo
-    $query = "INSERT INTO doctores (nombre, numcolegiado) values(upper('" . $nombre . "'), '" . $numero . "')";
-    $res = mysql_query($query);
+    $query3 = "INSERT INTO doctores (nombre, numcolegiado) values(upper('" . $nombre . "'), '" . $numero . "')";
+    $res3 = mysql_query($query3);
         
         // Comprobar el resultado
-        if (!res) {
-            echo 'error';
+        if (!$res3) {
             $mensaje = 'Error en la operación';
             $estado = mysql_errno();
         } else {
-
             $mensaje = "Operación correcta";
             $estado  = 0;
             $id =mysql_insert_id();
-            echo 'ID: '.$id;
         }
 
 }
 
 //insertar clinicas
 foreach ($clinicas as $key => $value) {
-            $query = "INSERT INTO clinica_doctor (id_doctor, id_clinica) values( '".$id."', '".$value."' ) ";
-            echo $query;
-            $res = mysql_query($query);
-            if (!res) {
-                echo 'error';
-                $mensaje = 'Error en la operación';
-                $estado = mysql_errno();
-            } else {
-
-            $mensaje = "Operación correcta";
-            $estado  = 0;
-            }
+    $query4 = "INSERT INTO clinica_doctor (id_doctor, id_clinica) values( '".$id."', '".$value."' )";
+    $res4 = mysql_query($query4);
+            
+    // Comprobar el resultado
+    if (!$res4) {
+        $mensaje = 'Error en la operación';
+        $estado = mysql_errno();
+    } else {
+        $mensaje = "Operación correcta";
+        $estado  = 0;
+    }
 }
 
 
 
-
-
-
-
-//echo json_encode($_POST);
 
     $resultado   = array();
     $resultado[] = array(
         'mensaje' => $mensaje,
         'estado' => $estado
     );
+
+    //print_r($_POST);
     echo json_encode($resultado);
 
 

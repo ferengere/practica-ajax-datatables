@@ -1,151 +1,218 @@
 //main.js
 'use strict';
 
-var control = {
-    _tablaDoctores: null,
-    _validarDoctor: null,
-    _modalDoctor: null,
-    _formDoctor: null,
-    _modalBorrar: $('#modalBorrar'),
-    _modalConfirmar: $('#modalConfirmar'),
-    _idDoctor: null,
-    _editarDoctor: false, //false nuevo, true editar
-    _msgConfirmar: {
-        nuevo: 'Se creará un nuevo doctor',
-        editar: 'Se modificarán los datos del doctor',
-        borrar: 'Se borrarán los datos del doctor'
-    },
-    _init: function() {
-        this._modalDoctor = $('#modalDoctor');
-        this._formDoctor = $('#formDoctor');
-    },
-    formatList: function(data) {
-        //poner nombres de clínicas en forma de lista en el campo de la tabla
-        var lista = data.split(',');
-        var $ul = $('<ul>');
-
-        lista.forEach(function(item) {
-            var $li = $('<li>').text(item);
-            $li.appendTo($ul);
-        });
-        return $ul.html();
-    },
-    initForm: function($elem) {
-        var self = this;
-        //inicializar y mostrar foumulario
-        var clinicasDoctor = null;
-        if (this._editarDoctor === true) {
-            var nRow = $elem.parents('tr')[0];
-            var aData = this._tablaDoctores.row(nRow).data();
-            this._idDoctor = aData.idDoctor;
-            clinicasDoctor = aData.clinicas.split(',');
-            $('#nombre').val(aData.nombreDoctor);
-            $('#numero').val(aData.numColegiado);
-            console.log('Editar doctor: ' + control._idDoctor);
-        } else {
-            this._idDoctor = null;
-            $('#nombre').val('');
-            $('#numero').val('');
-            console.log('Añadir doctor');
-        }
-
-        //var promise = control.getClinicas(); //****PONER THIS
-        var promise = this.getClinicas();
-        promise.success(function(data) {
-            self.formatSelect(clinicasDoctor, JSON.parse(data));
-        });
-        //$('#modalDoctor').modal('show');//lo muestra el botón
-
-    },
-    formatSelect: function(cliDoc, cliAll) {
-        //crear el select con todas las clinicas, seleccionando las del doctor
-        var size = cliAll.recordsTotal;
-
-        //usar el select del formulario para añadirle los elementos
-        var $sel = $('#selClinicas');
-        $sel.find('option').remove();
-        $sel.attr('size', size);
-
-        var cli = cliAll.data;
-
-        //crear opciones del select
-        cli.forEach(function(item) {
-            //console.log(item.nombre);
-            var $op = $('<option>').text(item.nombre);
-            $op.attr('id', item.idClinica);
-            $op.attr('value', item.idClinica);
-            if (cliDoc) {
-                var existe = $.inArray(item.nombre, cliDoc);
-                //console.log(existe);
-                if (existe !== -1) {
-                    $op.attr('selected', 'selected');
-                }
-            }
-            $op.appendTo($sel);
-        });
-        //var clinicas = $('#selClinicas').html();
-        //console.log(clinicas);
-    },
-    getClinicas: function() {
-        return $.ajax({
-            url: 'php/cargar_clinicas.php'
-        });
-    },
-    borrarDoctor: function(id) {
-        return $.ajax({
-            type: 'POST',
-            dataType: 'json',
-            url: 'php/borrar_doctor.php',
-            data: {
-                id: id
-            }
-        });
-    },
-    registroDoctor: function(data) {
-        //inserta o edita los datos de un doctor
-        return $.ajax({
-            type: 'POST',
-            dataType: 'json',
-            url: 'php/registro_doctor.php',
-            data: {
-                editar: data.editar,
-                id: data.id,
-                nombre: data.nombre,
-                numero: data.numero,
-                clinicas: data.clinicas
-            }
-        });
-    },
-    formValido: function() {
-        var datosDoctor = {
-            editar: this._editarDoctor,
-            id: this._idDoctor,
-            nombre: this._formDoctor.find('#nombre').val(),
-            numero: this._formDoctor.find('#numero').val(),
-            clinicas: this._formDoctor.find('#selClinicas').val()
-        };
-    },
-    mensajeGrowl: function(mensaje, tipo) {
-        $.bootstrapGrowl(mensaje, {
-            type: tipo,
-            offset: {
-                from: 'bottom',
-                amount: 20
-            }
-        });
-    },
-    confirmarOperacion: function() {
-
-    }
-};
-
-
 $(document).ready(
     function() {
         console.log('DOCUMENT.READY');
-        control._init();
 
-        control._tablaDoctores = $('#tablaDoctores').DataTable({
+        var control = {
+            //_tablaDoctores: null,
+            //_dtDoctores: null,
+            _modalDoctor: null,
+            _formDoctor: null,
+            _modalBorrar: $('#modalBorrar'),
+            _modalConfirmar: $('#modalConfirmar'),
+            _idDoctor: null,
+            _editarDoctor: false, //false nuevo, true editar
+            _init: function() {
+                //this._tablaDoctores = $('#tablaDoctores');
+                this._modalDoctor = $('#modalDoctor');
+                this._formDoctor = $('#formDoctor');
+            },
+            formatList: function(data) {
+                //poner nombres de clínicas en forma de lista en el campo de la tabla
+                var lista = data.split(',');
+                var $ul = $('<ul>');
+
+                lista.forEach(function(item) {
+                    var $li = $('<li>').text(item);
+                    $li.appendTo($ul);
+                });
+                return $ul.html();
+            },
+            initForm: function($elem) {
+                var self = this;
+                //inicializar y mostrar foumulario
+                var clinicasDoctor = null;
+                /*console.log('elem:');
+                console.log(elem);
+                console.log('$(elem):');
+                console.log($(elem));*/
+                if (this._editarDoctor === true) {
+                    //var nRow = $(elem).parents('tr')[0];
+
+                    //console.log('nRow: ' + nRow);
+                    //var aData = this._dtDoctores.row(nRow).data();
+                    var tr = $elem.closest('tr');
+                    var nRow = _dtDoctores.row(tr);
+                    console.log('nRow: ' + nRow);
+                    var aData = nRow.data();
+
+
+                    this._idDoctor = aData.idDoctor;
+                    clinicasDoctor = aData.clinicas.split(',');
+                    $('#nombre').val(aData.nombreDoctor);
+                    $('#numero').val(aData.numColegiado);
+                    console.log('Editar doctor: ' + control._idDoctor);
+                } else {
+                    this._idDoctor = null;
+                    $('#nombre').val('');
+                    $('#numero').val('');
+                    console.log('Añadir doctor');
+                }
+
+                //var promise = control.getClinicas(); //****PONER THIS
+                var promise = this.getClinicas();
+                promise.success(function(data) {
+                    self.formatSelect(clinicasDoctor, JSON.parse(data));
+                });
+                //$('#modalDoctor').modal('show');//lo muestra el botón
+
+            },
+            formatSelect: function(cliDoc, cliAll) {
+                //crear el select con todas las clinicas, seleccionando las del doctor
+                var size = cliAll.recordsTotal;
+
+                //usar el select del formulario para añadirle los elementos
+                var $sel = $('#selClinicas');
+                $sel.find('option').remove();
+                $sel.attr('size', size);
+
+                var cli = cliAll.data;
+
+                //crear opciones del select
+                cli.forEach(function(item) {
+                    //console.log(item.nombre);
+                    var $op = $('<option>').text(item.nombre);
+                    $op.attr('id', item.idClinica);
+                    $op.attr('value', item.idClinica);
+                    if (cliDoc) {
+                        var existe = $.inArray(item.nombre, cliDoc);
+                        //console.log(existe);
+                        if (existe !== -1) {
+                            $op.attr('selected', 'selected');
+                        }
+                    }
+                    $op.appendTo($sel);
+                });
+                //var clinicas = $('#selClinicas').html();
+                //console.log(clinicas);
+            },
+            getClinicas: function() {
+                return $.ajax({
+                    url: 'php/cargar_clinicas.php'
+                });
+            },
+            borrarDoctor: function(id) {
+                return $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: 'php/borrar_doctor.php',
+                    data: {
+                        id: id
+                    }
+                });
+            },
+            registroDoctor: function(data) {
+                //inserta o edita los datos de un doctor
+                return $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: 'php/registro_doctor.php',
+                    data: data
+                });
+            },
+            formValido: function() {
+                var self = this;
+                var datosDoctor = {
+                    editar: this._editarDoctor,
+                    id: this._idDoctor,
+                    nombre: this._formDoctor.find('#nombre').val(),
+                    numero: this._formDoctor.find('#numero').val(),
+                    clinicas: this._formDoctor.find('#selClinicas').val()
+                };
+                //if (this._formDoctor.find('#numero').val()){
+                //datosDoctor.numero }
+
+                console.log(datosDoctor);
+                console.log('numero: ' + datosDoctor.numero);
+                //ejecutar ajax con los datos del doctor
+                var promise = control.registroDoctor(datosDoctor);
+                promise.success(function(data) {
+                    console.log('PROMISE SUCCESS');
+                    data = data[0];
+                    console.log(data.estado);
+                    console.log(data.mensaje);
+                    switch (data.estado) {
+                        case 0:
+                            $.bootstrapGrowl(data.mensaje, {
+                                type: 'success',
+                                offset: {
+                                    from: 'bottom',
+                                    amount: 20
+                                }
+                            });
+                            break;
+                        default:
+                            $.bootstrapGrowl(data.mensaje, {
+                                type: 'error',
+                                offset: {
+                                    from: 'bottom',
+                                    amount: 20
+                                }
+                            });
+                    }
+
+                    _dtDoctores = _tablaDoctores.DataTable({
+                        'bRetrieve': true
+                    });
+                    //actualizamos datatables:
+                    _dtDoctores.draw();
+
+                });
+                promise.error(function(xhr, status, error) {
+                    console.log('PROMISE ERROR');
+                    console.log(error);
+                    $.bootstrapGrowl(error, {
+                        type: 'error',
+                        offset: {
+                            from: 'bottom',
+                            amount: 20
+                        }
+                    });
+                });
+
+                //refrescar tabla
+                /*var $tabla = $('#tablaDoctores').dataTable({
+                    'bRetrieve': true
+                });
+                //actualizamos datatables:
+                $tabla.fnDraw();*/
+
+                //console.log('this._tablaDoctores: ' + $(this.this._tablaDoctores));
+                //esconder modal
+                this._modalDoctor.modal('hide');
+            },
+            prepararModalBorrar: function($elem) {
+                var nRow = $elem.parents('tr')[0];
+                var aData = this._tablaDoctores.row(nRow).data();
+                this._idDoctor = aData.idDoctor;
+                /*var mensaje1 = 'El doctor será borrado';
+                var mensaje2 = '¿?';
+                this._modalBorrar.find('#mensaje1').text(mensaje1);
+                this._modalBorrar.find('#mensaje2').text(mensaje2);*/
+            },
+            confirmarBorrar: function() {
+                //promesa borrarDoctor(id);
+                //como formvalido
+            }
+        };
+
+
+
+        control._init();
+        var _tablaDoctores = $('#tablaDoctores');
+        var _dtDoctores = _tablaDoctores.DataTable({
             'processing': true,
             'serverSide': true,
             'stateSave': true,
@@ -196,7 +263,7 @@ $(document).ready(
             }, {
                 'data': 'idDoctor',
                 'render': function(data) {
-                    return '<button  class="btn btn-warning btnBorrar" >Borrar</button>';
+                    return '<button class="btn btn-warning btnBorrar" data-target="#modalBorrar" data-toggle="modal" data-backdrop="static">Borrar</button>';
                 }
             }],
             'columnDefs': [{
@@ -214,7 +281,8 @@ $(document).ready(
             return this.optional(element) || /^[a-z áéíóúñç]+$/i.test(value);
         });
 
-        control._validarDoctor = $('#formDoctor').validate({
+        control._formDoctor.validate({
+            onsubmit: false,
             rules: {
                 nombre: {
                     required: true,
@@ -250,78 +318,70 @@ $(document).ready(
                     required: 'Debe seleccionar al menos una clínica'
                 }
             },
-            submitHandler: function(form) {
-                console.log('FORMDOCTOR validado');
-
-
-            }
-
+            /*submitHandler: function(form) {
+                console.log('submit');
+                form.preventDefault();
+                control.formValido();
+            }*/
         });
 
 
         //evento pulsar boton nuevo
         $('.btnNuevo').on('click', function(e) {
             var evt = e || window.event;
-            //evt.preventDefault();
-            console.log('Boton Crear pulsado');
+            evt.preventDefault();
+            //console.log('Boton Nuevo pulsado');
             control._editarDoctor = false;
-            //control.mensajeGrowl('Nuevo doctor', 'info');
             control.initForm($(this));
         });
-
 
         //evento pulsar boton editar
         $('#tablaDoctores').on('click', '.btnEditar', function(e) {
             var evt = e || window.event;
-            //evt.preventDefault();
-            console.log('Boton Editar pulsado');
+            evt.preventDefault();
+            //console.log('Boton Editar pulsado');
             control._editarDoctor = true;
-            //control.mensajeGrowl('Editar doctor', 'info');
             control.initForm($(this));
+        });
+
+        $('#modalDoctor').on('click', '#btnConfirmarEditar', function(e) {
+            var evt = e || window.event;
+            evt.preventDefault();
+            console.log('Boton Confirmar Editar pulsado');
+            if (control._formDoctor.valid()) {
+                control.formValido();
+            }
         });
 
 
         //evento pulsar boton borrar
-        $('#tablaDoctores').on('click', '.btnBorrar', function(e) {
+        /*$('#tablaDoctores').on('click', '.btnBorrar', function(e) {
             var evt = e || window.event;
             //evt.preventDefault();
             console.log('Boton Borrar pulsado');
-            control.borrarDoctor($(this));
+            //no se hace nada, el modalBorrar se abre con los parámetros del botón
 
-            /*var id = $(evt.target).attr('id');
-            console.log(id);
+            //mostrar men
+            //control.confirmarBorrar($(this));
 
+            
+        });*/
 
-            $('#modalBorrar').prop('idDoctor', id);
-            $('#modalBorrar div.modal-body').html('<p>Desea borrar el doctor ' + id + ' ?</p>');
-            $('#modalBorrar').modal('show');*/
-        });
-
-
-
-        /*$('#modalDoctor').on('click', '#btnConfirmarEditar', function(e) {
+        $('#modalBorrar').on('show.bs.modal', function(e) {
+            //preparar mensaje del modal
             var evt = e || window.event;
             //evt.preventDefault();
-            console.log('Boton Confirmar Editar pulsado');
-
-            if (control._validarDoctor.valid()) {
-                console.log('VALIDO');
-                control.formValido();
-                console.log('FIN VALIDO');
-            }
-
-
-
-        });*/
+            console.log('Boton Borrar pulsado');
+            control.prepararModalBorrar($(this));
+        });
 
         $('#modalBorrar').on('click', '#btnConfirmarBorrar', function(e) {
             var evt = e || window.event;
             evt.preventDefault();
-            var id = $('#modalBorrar').prop('idDoctor');
-            console.log('Boton Confirmar Borrar pulsado ' + id);
+            console.log('Boton Confirmar Borrar pulsado');
 
             ///BORRAR DOCTOR
-            var mensaje;
+            /*var mensaje;
             var promise = control.borrarDoctor(id);
             promise.success(function(data) {
                 var res = data[0];
@@ -334,15 +394,10 @@ $(document).ready(
                         amount: 20
                     }
                 });
-            });
+            });*/
 
             $('#modalBorrar').modal('hide');
 
         });
-
-        //
-
-
-
 
     }); //ready
