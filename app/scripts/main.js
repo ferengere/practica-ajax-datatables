@@ -123,7 +123,6 @@ $(document).ready(
                 });
             },
             formValido: function() {
-                var self = this;
                 var datosDoctor = {
                     editar: this._editarDoctor,
                     id: this._idDoctor,
@@ -257,12 +256,12 @@ $(document).ready(
                 }
             }, {
                 'data': 'idDoctor',
-                'render': function(data) {
+                'render': function() {
                     return '<button class="btn btn-primary btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Editar</button>';
                 }
             }, {
                 'data': 'idDoctor',
-                'render': function(data) {
+                'render': function() {
                     return '<button class="btn btn-warning btnBorrar" data-target="#modalBorrar" data-toggle="modal" data-backdrop="static">Borrar</button>';
                 }
             }],
