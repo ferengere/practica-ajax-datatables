@@ -35,16 +35,13 @@ var control = {
         //inicializar y mostrar foumulario
         var clinicasDoctor = null;
         if (this._editarDoctor === true) {
-            this._idDoctor = $elem.attr('id');
-            console.log('Editar doctor: ' + control._idDoctor);
             var nRow = $elem.parents('tr')[0];
             var aData = this._tablaDoctores.row(nRow).data();
-            //console.log(aData);
+            this._idDoctor = aData.idDoctor;
             clinicasDoctor = aData.clinicas.split(',');
             $('#nombre').val(aData.nombreDoctor);
             $('#numero').val(aData.numColegiado);
-
-
+            console.log('Editar doctor: ' + control._idDoctor);
         } else {
             this._idDoctor = null;
             $('#nombre').val('');
@@ -52,17 +49,16 @@ var control = {
             console.log('Añadir doctor');
         }
 
-        var promise = control.getClinicas(); //****PONER THIS
+        //var promise = control.getClinicas(); //****PONER THIS
+        var promise = this.getClinicas();
         promise.success(function(data) {
             self.formatSelect(clinicasDoctor, JSON.parse(data));
         });
+        //$('#modalDoctor').modal('show');//lo muestra el botón
 
-        //$('#modalDoctor').modal('show');
     },
     formatSelect: function(cliDoc, cliAll) {
         //crear el select con todas las clinicas, seleccionando las del doctor
-
-        //var selected = cliDoc.split(',');
         var size = cliAll.recordsTotal;
 
         //usar el select del formulario para añadirle los elementos
@@ -120,6 +116,15 @@ var control = {
             }
         });
     },
+    formValido: function() {
+        var datosDoctor = {
+            editar: this._editarDoctor,
+            id: this._idDoctor,
+            nombre: this._formDoctor.find('#nombre').val(),
+            numero: this._formDoctor.find('#numero').val(),
+            clinicas: this._formDoctor.find('#selClinicas').val()
+        };
+    },
     mensajeGrowl: function(mensaje, tipo) {
         $.bootstrapGrowl(mensaje, {
             type: tipo,
@@ -133,10 +138,6 @@ var control = {
 
     }
 };
-
-/*var validarFormulario = function() {
-
-};*/
 
 
 $(document).ready(
@@ -176,13 +177,9 @@ $(document).ready(
             },
 
             'columns': [{
-                'data': {
-                    id: 'idDoctor',
-                    nombre: 'nombreDoctor'
-                },
+                'data': 'nombreDoctor',
                 'render': function(data) {
-                    return '<a id="' + data.idDoctor + '" class="btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">' + data.nombreDoctor + '</a>';
-                    //<button class="btn btn-primary btnNuevo" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Nuevo Doctor</button>
+                    return '<a class="btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">' + data + '</a>';
                 }
             }, {
                 'data': 'numColegiado'
@@ -194,12 +191,12 @@ $(document).ready(
             }, {
                 'data': 'idDoctor',
                 'render': function(data) {
-                    return '<button id="' + data + '" class="btn btn-primary btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Editar</button>';
+                    return '<button class="btn btn-primary btnEditar" data-target="#modalDoctor" data-toggle="modal" data-backdrop="static">Editar</button>';
                 }
             }, {
                 'data': 'idDoctor',
                 'render': function(data) {
-                    return '<button id="' + data + '" class="btn btn-warning btnBorrar" >Borrar</button>';
+                    return '<button  class="btn btn-warning btnBorrar" >Borrar</button>';
                 }
             }],
             'columnDefs': [{
@@ -213,11 +210,16 @@ $(document).ready(
             }]
         });
 
+        jQuery.validator.addMethod('sololetras', function(value, element) {
+            return this.optional(element) || /^[a-z áéíóúñç]+$/i.test(value);
+        });
+
         control._validarDoctor = $('#formDoctor').validate({
             rules: {
                 nombre: {
-                    required: true
-
+                    required: true,
+                    sololetras: true,
+                    minlength: 2
                 },
                 numero: {
                     digits: function() {
@@ -236,7 +238,9 @@ $(document).ready(
             },
             messages: {
                 nombre: {
-                    required: 'Debe escribir el nombre'
+                    required: 'Debe escribir el nombre',
+                    sololetras: 'Debe escribir sólo letras',
+                    minlength: 'La longitud mínima debe ser {0} caracteres'
 
                 },
                 numero: {
@@ -248,101 +252,11 @@ $(document).ready(
             },
             submitHandler: function(form) {
                 console.log('FORMDOCTOR validado');
+
+
             }
 
         });
-
-        var validatorEditar = $('#editarDoctor').validate({
-            rules: {
-                nombreEditar: {
-                    required: true,
-                    minlength: 2,
-                    validaNombre: true, // modificado para que admita ñ, acentos, espacios ...
-                    maxlength: 100
-                },
-                numeroColegiadoEditar: {
-                    //  required: true,
-                    digits: true, // solo numeros pero no cifras (-12) no es válido
-                    minlength: 4,
-                    maxlength: 7
-                },
-                'seleccionaClinicasEditar[]': {
-                    required: true,
-                    minlength: 1
-                }
-            },
-            // unos cuantos mensajes personalizados
-            messages: {
-                numeroColegiadoEditar: {
-                    //  required: "Para modificar un doctor es necesario un numero de colegiado",
-                    digits: "El numero de colegiado solo puede tener numeros",
-                    minlength: "El número de colegiado debe tener al menos {0} digitos", // {0} es el valor del primer parametro 
-                    maxlength: "El número de colegiado debe tener como mucho {0} digitos"
-                },
-                nombreEditar: {
-                    required: "Para editar un doctor es necesario un nombre de doctor",
-                    minlength: "El nombre del doctor debe tener al menos {0} caracteres", // {0} es el valor del primer parametro
-                    maxlength: "El nombre del doctor no puede tener mas de {0} caracteres",
-                    validaNombre: "El nombre del doctor solo puede contener letras"
-                },
-                'seleccionaClinicasEditar[]': {
-                    required: "Cada doctor editado tiene que tener alguna clínica asignada",
-                    minlength: "El doctor editado debe tener al menos {0} clinica asignada",
-                }
-            },
-            submitHandler: function(form) {
-                console.log("en el boton  submitHandler botonConfirmarEditarDoctor");
-                /*var idDoctor = $("#idDoctorEditar").val();
-                var clinicas = $("#seleccionaClinicasEditar").val();
-                var nombre = $("#nombreEditar").val();
-                var numeroColegiado = $("#numeroColegiadoEditar").val();
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    // un unico php para todas las acciones
-                    url: "php/mto_doctor.php",
-                    async: false,
-                    //estos son los datos que queremos usar, en json:
-                    data: {
-                        accion: 'editarDoctor', // la acción que ejecuto el php es un parámetro más
-                        idDoctor: idDoctor,
-                        clinicas: clinicas,
-                        nombre: nombre,
-                        numeroColegiado: numeroColegiado
-                    },
-                    error: function(xhr, status, error) {
-                        //el error se muestra con growl
-                        $.growl.error({
-                            message: "Error al editar un doctor!" + error
-                        });
-                    },
-                    success: function(data) {
-                        //obtenemos el mensaje del servidor, es un array!!!
-                        //var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
-                        var $mitabla = $("#miTabla").dataTable({
-                            bRetrieve: true
-                        });
-                        //actualizamos datatables:
-                        $mitabla.fnDraw();
-                        $.growl({
-                            title: "Exito!",
-                            // colocando el mensaje centrado arriba ... manias ...
-                            location: "tc",
-                            size: "large",
-                            style: "warning",
-                            message: "El doctor ha sido editado con exito"
-                        });
-                        $('#modal-editar').modal('hide');
-                    },
-                    complete: {
-                        //si queremos hacer algo al terminar la petición ajax
-
-                    }
-                });*/
-            }
-        });
-
-
 
 
         //evento pulsar boton nuevo
@@ -351,7 +265,7 @@ $(document).ready(
             //evt.preventDefault();
             console.log('Boton Crear pulsado');
             control._editarDoctor = false;
-            control.mensajeGrowl('Nuevo doctor', 'info');
+            //control.mensajeGrowl('Nuevo doctor', 'info');
             control.initForm($(this));
         });
 
@@ -362,7 +276,7 @@ $(document).ready(
             //evt.preventDefault();
             console.log('Boton Editar pulsado');
             control._editarDoctor = true;
-            control.mensajeGrowl('Editar doctor', 'info');
+            //control.mensajeGrowl('Editar doctor', 'info');
             control.initForm($(this));
         });
 
@@ -370,7 +284,7 @@ $(document).ready(
         //evento pulsar boton borrar
         $('#tablaDoctores').on('click', '.btnBorrar', function(e) {
             var evt = e || window.event;
-            evt.preventDefault();
+            //evt.preventDefault();
             console.log('Boton Borrar pulsado');
             control.borrarDoctor($(this));
 
@@ -383,19 +297,7 @@ $(document).ready(
             $('#modalBorrar').modal('show');*/
         });
 
-        /*$('#modalDoctor').on('click', '#btnConfirmarEditar', function(e) {
-            var evt = e || window.event;
-            evt.preventDefault();
-            console.log('Boton Confirmar Editar pulsado');
 
-            //validar formulario
-            //validarFormulario();
-            //$('#formDoctor').sub;
-
-
-            //$('#modalDoctor').modal('hide');
-
-        });*/
 
         /*$('#modalDoctor').on('click', '#btnConfirmarEditar', function(e) {
             var evt = e || window.event;
