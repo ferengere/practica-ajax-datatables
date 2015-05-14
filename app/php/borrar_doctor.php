@@ -25,35 +25,38 @@ if (!mysql_select_db($gaSql['db'], $gaSql['link'])) {
 }
 
 mysql_query('SET names utf8');
-//$_REQUEST['id_clinica'] = 1;
-if (isset($_REQUEST['id'])) {
-    // param was set in the query string
-    if (empty($_REQUEST['id'])) {
-        return "El parámetro id viene vacio!";
-    }
-    $id = $_REQUEST['id'];
+if (!empty($_POST['id'])){
+$id=$_POST['id'];
+} else {
+    $id="";
 }
 
-/*
- * SQL queries
- * Get data to display
- */
-$query = "delete from doctores where id_doctor=" . $id;
-$query_res = mysql_query($query);
 
-// Comprobar el resultado
-if (!$query_res) {
-    if (mysql_errno() == 1451) {
-        $mensaje = "Imposible borrar el doctor, tiene clínicas definidas.";
+
+$query1 = "DELETE FROM clinica_doctor WHERE id_doctor = ".$id;
+    $res1 = mysql_query($query1);
+        // Comprobar el resultado
+    if (!$res1) {
+        $mensaje = 'Error en la operación';
         $estado = mysql_errno();
     } else {
-        $mensaje = 'Error en la consulta: ' . mysql_error() . "\n";
-        $estado = mysql_errno();
+        $mensaje = "Operación correcta";
+        $estado  = 0;
     }
-} else {
-    $mensaje = "Actualización correcta";
-    $estado = 0;
-}
+
+$query2 = "DELETE FROM doctores WHERE id_doctor = ".$id;
+    $res2 = mysql_query($query2);
+        
+    // Comprobar el resultado
+    if (!$res2) {
+        $mensaje = 'Error en la operación';
+        $estado = mysql_errno();
+    } else {
+        $mensaje = "Operación correcta";
+        $estado  = 0;
+    }
+
+
 $resultado = array();
 $resultado[] = array(
     'mensaje' => $mensaje,

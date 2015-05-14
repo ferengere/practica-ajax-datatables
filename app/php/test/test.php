@@ -32,9 +32,9 @@
 </select>
 <input type="submit" value="Enviar">
 </form>
-<form action="../buscar_municipio_db.php" method="post">
-<label for="cp">Escribe el cp</label>	
-<input type="text" name="cp">
+<form action="../borrar_doctor.php" method="post">
+<label for="id">Doctor a borrar (id)</label>	
+<input type="text" name="id">
 <input type="submit" value="Enviar">
 </form>
 </body>

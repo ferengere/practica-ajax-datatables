@@ -30,25 +30,15 @@ $(document).ready(
                 });
                 return $ul.html();
             },
-            initForm: function($elem) {
+            prepararModalDoctor: function($elem) {
                 var self = this;
                 //inicializar y mostrar foumulario
                 var clinicasDoctor = null;
-                /*console.log('elem:');
-                console.log(elem);
-                console.log('$(elem):');
-                console.log($(elem));*/
                 if (this._editarDoctor === true) {
-                    //var nRow = $(elem).parents('tr')[0];
-
-                    //console.log('nRow: ' + nRow);
-                    //var aData = this._dtDoctores.row(nRow).data();
                     var tr = $elem.closest('tr');
                     var nRow = _dtDoctores.row(tr);
-                    console.log('nRow: ' + nRow);
+                    //console.log('nRow: ' + nRow);
                     var aData = nRow.data();
-
-
                     this._idDoctor = aData.idDoctor;
                     clinicasDoctor = aData.clinicas.split(',');
                     $('#nombre').val(aData.nombreDoctor);
@@ -61,7 +51,6 @@ $(document).ready(
                     console.log('Añadir doctor');
                 }
 
-                //var promise = control.getClinicas(); //****PONER THIS
                 var promise = this.getClinicas();
                 promise.success(function(data) {
                     self.formatSelect(clinicasDoctor, JSON.parse(data));
@@ -103,16 +92,6 @@ $(document).ready(
                     url: 'php/cargar_clinicas.php'
                 });
             },
-            borrarDoctor: function(id) {
-                return $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: 'php/borrar_doctor.php',
-                    data: {
-                        id: id
-                    }
-                });
-            },
             registroDoctor: function(data) {
                 //inserta o edita los datos de un doctor
                 return $.ajax({
@@ -130,13 +109,11 @@ $(document).ready(
                     numero: this._formDoctor.find('#numero').val(),
                     clinicas: this._formDoctor.find('#selClinicas').val()
                 };
-                //if (this._formDoctor.find('#numero').val()){
-                //datosDoctor.numero }
 
                 console.log(datosDoctor);
                 console.log('numero: ' + datosDoctor.numero);
                 //ejecutar ajax con los datos del doctor
-                var promise = control.registroDoctor(datosDoctor);
+                var promise = this.registroDoctor(datosDoctor);
                 promise.success(function(data) {
                     console.log('PROMISE SUCCESS');
                     data = data[0];
@@ -154,7 +131,7 @@ $(document).ready(
                             break;
                         default:
                             $.bootstrapGrowl(data.mensaje, {
-                                type: 'error',
+                                type: 'warning',
                                 offset: {
                                     from: 'bottom',
                                     amount: 20
@@ -173,7 +150,7 @@ $(document).ready(
                     console.log('PROMISE ERROR');
                     console.log(error);
                     $.bootstrapGrowl(error, {
-                        type: 'error',
+                        type: 'warning',
                         offset: {
                             from: 'bottom',
                             amount: 20
@@ -181,35 +158,84 @@ $(document).ready(
                     });
                 });
 
-                //refrescar tabla
-                /*var $tabla = $('#tablaDoctores').dataTable({
-                    'bRetrieve': true
-                });
-                //actualizamos datatables:
-                $tabla.fnDraw();*/
-
-                //console.log('this._tablaDoctores: ' + $(this.this._tablaDoctores));
                 //esconder modal
                 this._modalDoctor.modal('hide');
             },
-            prepararModalBorrar: function($elem) {
-                var nRow = $elem.parents('tr')[0];
-                var aData = this._tablaDoctores.row(nRow).data();
+            obtenerIdDoctor: function($elem) {
+                var tr = $elem.closest('tr');
+                var nRow = _dtDoctores.row(tr);
+                //console.log('nRow: ' + nRow);
+                var aData = nRow.data();
                 this._idDoctor = aData.idDoctor;
-                /*var mensaje1 = 'El doctor será borrado';
-                var mensaje2 = '¿?';
-                this._modalBorrar.find('#mensaje1').text(mensaje1);
-                this._modalBorrar.find('#mensaje2').text(mensaje2);*/
+            },
+            borrarDoctor: function() {
+                //var self = this;
+                console.log('Borrar doctor: ' + this._idDoctor)
+                return $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: 'php/borrar_doctor.php',
+                    data: {
+                        id: this._idDoctor
+                    }
+                });
             },
             confirmarBorrar: function() {
                 //promesa borrarDoctor(id);
-                //como formvalido
+                var promise = this.borrarDoctor();
+
+                promise.success(function(data) {
+                    console.log('PROMISE SUCCESS');
+                    data = data[0];
+                    console.log(data.estado);
+                    console.log(data.mensaje);
+                    switch (data.estado) {
+                        case 0:
+                            $.bootstrapGrowl(data.mensaje, {
+                                type: 'success',
+                                offset: {
+                                    from: 'bottom',
+                                    amount: 20
+                                }
+                            });
+                            break;
+                        default:
+                            $.bootstrapGrowl(data.mensaje, {
+                                type: 'warning',
+                                offset: {
+                                    from: 'bottom',
+                                    amount: 20
+                                }
+                            });
+
+                    }
+
+                    _dtDoctores = _tablaDoctores.DataTable({
+                        'bRetrieve': true
+                    });
+                    //actualizamos datatables:
+                    _dtDoctores.draw();
+
+                });
+                promise.error(function(xhr, status, error) {
+                    console.log('PROMISE ERROR');
+
+                    $.bootstrapGrowl(error, {
+                        type: 'warning',
+                        offset: {
+                            from: 'bottom',
+                            amount: 20
+                        }
+                    });
+                });
+
+                //esconder modal
+                this._modalBorrar.modal('hide');
             }
         };
 
-
-
         control._init();
+
         var _tablaDoctores = $('#tablaDoctores');
         var _dtDoctores = _tablaDoctores.DataTable({
             'processing': true,
@@ -324,23 +350,23 @@ $(document).ready(
             }*/
         });
 
-
         //evento pulsar boton nuevo
         $('.btnNuevo').on('click', function(e) {
             var evt = e || window.event;
             evt.preventDefault();
             //console.log('Boton Nuevo pulsado');
             control._editarDoctor = false;
-            control.initForm($(this));
+            control.prepararModalDoctor($(this));
         });
+        ////////////////////////////////
 
-        //evento pulsar boton editar
+        //eventos editar
         $('#tablaDoctores').on('click', '.btnEditar', function(e) {
             var evt = e || window.event;
             evt.preventDefault();
             //console.log('Boton Editar pulsado');
             control._editarDoctor = true;
-            control.initForm($(this));
+            control.prepararModalDoctor($(this));
         });
 
         $('#modalDoctor').on('click', '#btnConfirmarEditar', function(e) {
@@ -351,52 +377,25 @@ $(document).ready(
                 control.formValido();
             }
         });
+        /////////////////////////////////
 
-
-        //evento pulsar boton borrar
-        /*$('#tablaDoctores').on('click', '.btnBorrar', function(e) {
+        //eventos borrar
+        $('#tablaDoctores').on('click', '.btnBorrar', function(e) {
             var evt = e || window.event;
-            //evt.preventDefault();
+            evt.preventDefault();
             console.log('Boton Borrar pulsado');
-            //no se hace nada, el modalBorrar se abre con los parámetros del botón
-
-            //mostrar men
-            //control.confirmarBorrar($(this));
-
-            
-        });*/
-
-        $('#modalBorrar').on('show.bs.modal', function(e) {
-            //preparar mensaje del modal
-            var evt = e || window.event;
-            //evt.preventDefault();
-            console.log('Boton Borrar pulsado');
-            control.prepararModalBorrar($(this));
+            var tr = $(this).closest('tr');
+            var nRow = _dtDoctores.row(tr);
+            var aData = nRow.data();
+            control._idDoctor = aData.idDoctor;
         });
 
         $('#modalBorrar').on('click', '#btnConfirmarBorrar', function(e) {
             var evt = e || window.event;
             evt.preventDefault();
             console.log('Boton Confirmar Borrar pulsado');
-
-            ///BORRAR DOCTOR
-            /*var mensaje;
-            var promise = control.borrarDoctor(id);
-            promise.success(function(data) {
-                var res = data[0];
-                console.log(data);
-
-                $.bootstrapGrowl(res.mensaje, {
-                    type: 'info',
-                    offset: {
-                        from: 'bottom',
-                        amount: 20
-                    }
-                });
-            });*/
-
-            $('#modalBorrar').modal('hide');
-
+            control.confirmarBorrar();
         });
+        ////////////////////////////
 
     }); //ready
